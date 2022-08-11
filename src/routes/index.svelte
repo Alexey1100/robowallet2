@@ -2,14 +2,24 @@
 	import { CryptoStorage } from '@webcrypto/storage';
 
 	let address;
-	let privateKey;
+	let account;
 	let cryptoStorage;
 
+	$: publicKey = account?.addr;
+
 	async function login() {
+		const algosdk = (await import('algosdk')).default;
 		const pass = await webauthn(address, address);
 		cryptoStorage = new CryptoStorage(pass, address);
 
-		privateKey = await cryptoStorage.get('privateKey');
+		const mnemonic = await cryptoStorage.get('mnemonic');
+
+		if (mnemonic) {
+			account = algosdk.mnemonicToSecretKey(mnemonic);
+		} else {
+			account = algosdk.generateAccount();
+			await cryptoStorage.set('mnemonic', algosdk.secretKeyToMnemonic(account.sk));
+		}
 	}
 
 	async function save() {
@@ -48,14 +58,10 @@
 <h1 class="text-3xl font-bold">Welcome to Robowallet</h1>
 
 <input type="text" class="border-violet-500 bg-neutral-200 " bind:value={address} />
-<input type="text" class="border-violet-500 bg-neutral-200 " bind:value={privateKey} />
+<input type="text" class="border-violet-500 bg-neutral-200 " bind:value={publicKey} />
 
 <p class="my-5">
 	<button class="bg-neutral-200 px-2 py-1 rounded active:bg-neutral-400" on:click={login}>
 		Sign-In
-	</button>
-
-	<button class="bg-neutral-200 px-2 py-1 rounded active:bg-neutral-400" on:click={save}>
-		Save
 	</button>
 </p>
