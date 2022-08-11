@@ -25,10 +25,6 @@
 		placeholder="API KEY"
 		bind:value={apiUrlValue}
 	/>
-	<button class="bg-neutral-200 px-3 py-1 rounded active:bg-neutral-400" on:click={login}>
-		Connect
-	</button>
-	<button class="bg-neutral-200 px-3 py-1 rounded active:bg-neutral-400" on:click={login}>
-		Disconnect
-	</button>
+	<button class="bg-neutral-200 px-3 py-1 rounded active:bg-neutral-400"> Connect </button>
+	<button class="bg-neutral-200 px-3 py-1 rounded active:bg-neutral-400"> Disconnect </button>
 </p>
