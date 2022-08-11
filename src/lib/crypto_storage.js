@@ -44,3 +44,11 @@ export async function getAccount(address) {
 		return account;
 	}
 }
+
+export async function getMnemonic(address) {
+	const pass = await webauthn(address, address);
+	const cryptoStorage = new CryptoStorage(pass, address);
+	const mnemonic = await cryptoStorage.get('mnemonic');
+
+	return mnemonic;
+}
