@@ -28,10 +28,8 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@esbuild-plugins/node-globals-polyfill": "^0.1.1",
 		"@webcrypto/storage": "^3.0.0",
 		"algosdk": "^1.19.0",
-		"buffer": "^6.0.3",
-		"path-browserify": "^1.0.1"
+		"buffer": "^6.0.3"
 	}
 }

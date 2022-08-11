@@ -2,6 +2,7 @@
 	import '../app.css';
 	import { Buffer } from 'buffer';
 	import { onMount } from 'svelte';
+	import { browser } from '$app/env';
 
 	// NOTE: Polyfill for Buffer
 	onMount(async () => {
