@@ -1,30 +1,23 @@
 <script>
 	import { apiUrl, apiKey } from '$lib/stores';
-
-	let apiUrlValue;
-	let apiKeyValue;
-
-	apiUrl.subscribe((value) => {
-		apiUrlValue = value;
-	});
-	apiKey.subscribe((value) => {
-		apiKeyValue = value;
-	});
 </script>
 
-<p class="my-5">
+<div class="my-10">
+	<h2 class="text-xl font-bold">Settings</h2>
 	<input
 		type="text"
-		class="bg-neutral-200 px-3 py-1 rounded font-mono"
+		class="bg-neutral-200 px-3 py-1 my-1 rounded font-mono w-1/2"
 		placeholder="API URL"
-		bind:value={apiUrlValue}
+		bind:value={$apiUrl}
 	/>
 	<input
 		type="text"
-		class="bg-neutral-200 px-3 py-1 rounded font-mono"
+		class="bg-neutral-200 px-3 py-1 my-1 rounded font-mono w-1/2"
 		placeholder="API KEY"
-		bind:value={apiUrlValue}
+		bind:value={$apiKey}
 	/>
-	<button class="bg-neutral-200 px-3 py-1 rounded active:bg-neutral-400"> Connect </button>
-	<button class="bg-neutral-200 px-3 py-1 rounded active:bg-neutral-400"> Disconnect </button>
-</p>
+	<div class="my-1">
+		<button class="bg-green-200 px-3 py-1 rounded active:bg-neutral-400"> Connect </button>
+		<button class="bg-red-200 px-3 py-1 rounded active:bg-neutral-400"> Disconnect </button>
+	</div>
+</div>
