@@ -31,6 +31,7 @@
 	"dependencies": {
 		"@webcrypto/storage": "^3.0.0",
 		"algosdk": "^1.19.0",
-		"buffer": "^6.0.3"
+		"buffer": "^6.0.3",
+		"dexie": "^3.2.2"
 	}
 }

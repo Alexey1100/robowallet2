@@ -26,6 +26,7 @@
 
 		<div class="my-1">
 			<button class="bg-neutral-200 px-3 py-1 rounded active:bg-neutral-400"> Top Up </button>
+			<button class="bg-neutral-200 px-3 py-1 rounded active:bg-neutral-400"> Withdraw </button>
 			<button
 				class="bg-neutral-200 px-3 py-1 rounded active:bg-neutral-400"
 				on:click={exportMnemonic}
