@@ -5,6 +5,8 @@
 	import { onDestroy } from 'svelte';
 
 	const fetchPeriod = 1000;
+	const algodKey = 'yay5jiXMXr88Bi8nsG1Af9E1X3JfwGOC2F7222r3';
+	const algodUrl = 'https://testnet-algorand.api.purestake.io/ps2';
 	let fetchInterval;
 	let account;
 
@@ -77,42 +79,73 @@
 	}
 
 	export async function processTransaction() {
+		const algosdk = (await import('algosdk')).default;
+		const algodClient = new algosdk.Algodv2(
+			{
+				'x-api-key': algodKey
+			},
+			algodUrl,
+			''
+		);
 		const transaction = await getTransaction();
-		// check if transactable id is already present and paid
-		// alert and disconnect if present
-		// push to store
-		// sign and broadcast with Algorand account
-		// if success, update state in store to pending, add tx hash
-		// if failure, update state in store to failed, cancel transaction
-		// wait for submit
-		// if success, update state in store to paid, submit transaction
-		// if failure, update state in store to failed, cancel transaction
+		let transactionHash;
+		let transactionDbId;
 
-		// 		{
-		//   "id": "40",
-		//   "blockchainTransactableId": null,
-		//   "blockchainTransactableType": null,
-		//   "destination": "0x42D00fC2Efdace4859187DE4865Df9BaA320D5dB",
-		//   "source": "0x42D00fC2Efdace4859187DE4865Df9BaA320D5dB",
-		//   "amount": 50,
-		//   "nonce": 1,
-		//   "contractAddress": "0x1D1592c28FFF3d3E71b1d29E31147846026A0a37",
-		//   "network": "ethereum_ropsten",
-		//   "txHash": null,
-		//   "txRaw": "{\"from\":\"0x42D00fC2Efdace4859187DE4865Df9BaA320D5dB\",\"to\":\"0x1D1592c28FFF3d3E71b1d29E31147846026A0a37\",\"value\":\"0x0\",\"contract\":{\"abi\":[{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"method\":\"transfer\",\"parameters\":[\"0x42D00fC2Efdace4859187DE4865Df9BaA320D5dB\",\"50\"]}}",
-		//   "status": "created",
-		//   "statusMessage": null,
-		//   "createdAt": "2021-04-06T10:05:00.000Z",
-		//   "updatedAt": "2021-04-06T10:05:00.000Z",
-		//   "syncedAt": null,
-		//   "blockchainTransactables": [
-		//     {
-		//       "blockchainTransactableId": 4,
-		//       "blockchainTransactableType": "Award",
-		//       "id": null
-		//     }
-		//   ]
-		// }
+		try {
+			if (
+				(await db.transactions
+					.where(['blockchainTransactionbleId', 'status'])
+					.equals([transaction.blockchainTransactionbleId, 'complete'])
+					.count()) > 0
+			) {
+				throw `Transaction already processed: ${transaction}`;
+			}
+
+			transactionDbId = await db.transactions.add({
+				id: transaction.id,
+				blockchainTransactionbleId: transaction.blockchainTransactionbleId,
+				blockchainTransactionbleType: transaction.blockchainTransactionbleType,
+				amount: transaction.amount,
+				destination: transaction.destination,
+				hash: null,
+				status: 'pending'
+			});
+
+			let txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+				from: $publicKey,
+				to: transaction.destination,
+				amount: transaction.amount,
+				suggestedParams: await algodClient.getTransactionParams().do()
+			});
+			let signedTxn = txn.signTxn(account.sk);
+			transactionHash = txn.txID().toString();
+
+			db.transactions.update(transactionDbId, {
+				hash: transactionHash
+			});
+
+			await algodClient.sendRawTransaction(signedTxn).do();
+			await algosdk.waitForConfirmation(algodClient, txId, 4);
+			db.transactions.update(transactionDbId, {
+				status: 'complete'
+			});
+			submitTransaction(transaction);
+		} catch (err) {
+			console.error(err);
+
+			if (transactionDbId) {
+				db.transactions.update(transactionDbId, {
+					status: 'failed',
+					statusMessage: err
+				});
+			}
+
+			if (transactionHash) {
+				cancelTransaction(transaction, err);
+			}
+
+			window.alert(err);
+		}
 	}
 
 	export async function connect() {
