@@ -19,71 +19,55 @@
 	let account;
 
 	export async function register() {
-		try {
-			const response = await fetch(`${$apiUrl}/hot_wallet_addresses`, {
-				method: 'POST',
-				headers: {
-					'API-Transaction-Key': $apiKey
-				},
-				body: JSON.stringify({
-					body: { data: { hot_wallet: { address: $publicKey } } }
-				})
-			});
-			return await response.json();
-		} catch (error) {
-			console.error(error);
-		}
+		const response = await fetch(`${$apiUrl}/hot_wallet_addresses`, {
+			method: 'POST',
+			headers: {
+				'API-Transaction-Key': $apiKey
+			},
+			body: JSON.stringify({
+				body: { data: { hot_wallet: { address: $publicKey } } }
+			})
+		});
+		return await response.json();
 	}
 
 	export async function getTransaction() {
-		try {
-			const response = await fetch(`${$apiUrl}/blockchain_transactions`, {
-				method: 'POST',
-				headers: {
-					'API-Transaction-Key': $apiKey
-				},
-				body: JSON.stringify({
-					body: { data: { transaction: { source: $publicKey, nonce: 1 } } }
-				})
-			});
-			return await response.json();
-		} catch (error) {
-			console.error(error);
-		}
+		const response = await fetch(`${$apiUrl}/blockchain_transactions`, {
+			method: 'POST',
+			headers: {
+				'API-Transaction-Key': $apiKey
+			},
+			body: JSON.stringify({
+				body: { data: { transaction: { source: $publicKey, nonce: 1 } } }
+			})
+		});
+		return await response.json();
 	}
 
 	export async function submitTransaction(transaction) {
-		try {
-			const response = await fetch(`${$apiUrl}/blockchain_transactions/${transaction.id}`, {
-				method: 'PUT',
-				headers: {
-					'API-Transaction-Key': $apiKey
-				},
-				body: JSON.stringify({
-					body: { data: { transaction: { tx_hash: transaction.hash } } }
-				})
-			});
-			return await response.json();
-		} catch (error) {
-			console.error(error);
-		}
+		const response = await fetch(`${$apiUrl}/blockchain_transactions/${transaction.id}`, {
+			method: 'PUT',
+			headers: {
+				'API-Transaction-Key': $apiKey
+			},
+			body: JSON.stringify({
+				body: { data: { transaction: { tx_hash: transaction.hash } } }
+			})
+		});
+		return await response.json();
 	}
 
 	export async function cancelTransaction(transaction, reason) {
-		try {
-			const response = await fetch(`${$apiUrl}/blockchain_transactions/${transaction.id}`, {
-				method: 'DELETE',
-				headers: {
-					'API-Transaction-Key': $apiKey
-				},
-				body: JSON.stringify({
-					body: { data: { transaction: { tx_hash: null, status_message: reason } } }
-				})
-			});
-			return await response.json();
-		} catch (error) {
-			console.error(error);
-		}
+		const response = await fetch(`${$apiUrl}/blockchain_transactions/${transaction.id}`, {
+			method: 'DELETE',
+			headers: {
+				'API-Transaction-Key': $apiKey
+			},
+			body: JSON.stringify({
+				body: { data: { transaction: { tx_hash: null, status_message: reason } } }
+			})
+		});
+		return await response.json();
 	}
 
 	export async function processTransaction() {
