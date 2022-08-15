@@ -1,5 +1,13 @@
 <script>
-	import { apiUrl, apiKey, isLoggedIn, publicKey, isConnected, loginCredential } from '$lib/stores';
+	import {
+		apiUrl,
+		apiKey,
+		isLoggedIn,
+		publicKey,
+		isConnected,
+		loginCredential,
+		balance
+	} from '$lib/stores';
 	import { getAccount } from '$lib/crypto_storage';
 	import { db } from '$lib/db';
 	import { onDestroy } from 'svelte';
@@ -91,6 +99,8 @@
 		let transactionHash;
 		let transactionDbId;
 
+		balance.set(await algodClient.accountInformation($publicKey).do().amount);
+
 		try {
 			if (
 				(await db.transactions
@@ -146,6 +156,8 @@
 
 			window.alert(err);
 		}
+
+		balance.set(await algodClient.accountInformation($publicKey).do().amount);
 	}
 
 	export async function connect() {
