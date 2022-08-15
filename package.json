@@ -29,9 +29,14 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@esbuild-plugins/node-globals-polyfill": "^0.1.1",
+		"@json-rpc-tools/utils": "^1.7.6",
+		"@walletconnect/client": "^1.8.0",
 		"@webcrypto/storage": "^3.0.0",
+		"algorand-walletconnect-qrcode-modal": "^1.7.4",
 		"algosdk": "^1.19.0",
 		"buffer": "^6.0.3",
-		"dexie": "^3.2.2"
+		"dexie": "^3.2.2",
+		"tslib": "^2.4.0"
 	}
 }

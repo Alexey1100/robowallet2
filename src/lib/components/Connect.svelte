@@ -11,7 +11,7 @@
 		algodKey,
 		algodUrl
 	} from '$lib/stores';
-	import { makePayTxn, signTxn, submitTxn } from '$lib/algorand.js';
+	import { makePayTxn, signTxn, submitTxn, getBalance } from '$lib/algorand.js';
 	import { getAccount } from '$lib/crypto_storage';
 	import { db } from '$lib/db';
 	import { onDestroy } from 'svelte';
@@ -84,7 +84,7 @@
 		let transactionHash;
 		let transactionDbId;
 
-		balance.set(await getBalance($publicKey));
+		balance.set(await getBalance($publicKey, algodClient));
 
 		try {
 			if (
@@ -142,7 +142,7 @@
 			window.alert(err);
 		}
 
-		balance.set(await getBalance($publicKey));
+		balance.set(await getBalance($publicKey, algodClient));
 	}
 
 	export async function connect() {

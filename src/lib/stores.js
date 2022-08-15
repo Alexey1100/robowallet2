@@ -1,8 +1,9 @@
 import { writable } from 'svelte/store';
 
-export const loginCredential = writable('0x');
-export const publicKey = writable('');
-export const balance = writable('');
+export const loginCredential = writable(null);
+export const walletConnectConnector = writable(null);
+export const publicKey = writable(null);
+export const balance = writable(null);
 export const apiUrl = writable('http://localhost:3000/api/v1/projects/20');
 export const apiKey = writable('Fq2tlpI0ELzj18IbXNq25nevNSA4eLFf');
 export const apiFetchPeriod = writable(1000);
