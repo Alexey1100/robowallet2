@@ -2,19 +2,20 @@
 	import {
 		apiUrl,
 		apiKey,
+		apiFetchPeriod,
 		isLoggedIn,
 		publicKey,
 		isConnected,
 		loginCredential,
-		balance
+		balance,
+		algodKey,
+		algodUrl
 	} from '$lib/stores';
+	import { makePayTxn, signTxn, submitTxn } from '$lib/algorand.js';
 	import { getAccount } from '$lib/crypto_storage';
 	import { db } from '$lib/db';
 	import { onDestroy } from 'svelte';
 
-	const fetchPeriod = 1000;
-	const algodKey = 'yay5jiXMXr88Bi8nsG1Af9E1X3JfwGOC2F7222r3';
-	const algodUrl = 'https://testnet-algorand.api.purestake.io/ps2';
 	let fetchInterval;
 	let account;
 
@@ -74,16 +75,16 @@
 		const algosdk = (await import('algosdk')).default;
 		const algodClient = new algosdk.Algodv2(
 			{
-				'x-api-key': algodKey
+				'x-api-key': $algodKey
 			},
-			algodUrl,
+			$algodUrl,
 			''
 		);
 		const transaction = await getTransaction();
 		let transactionHash;
 		let transactionDbId;
 
-		balance.set(await algodClient.accountInformation($publicKey).do().amount);
+		balance.set(await getBalance($publicKey));
 
 		try {
 			if (
@@ -105,21 +106,21 @@
 				status: 'pending'
 			});
 
-			let txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-				from: $publicKey,
-				to: transaction.destination,
-				amount: transaction.amount,
-				suggestedParams: await algodClient.getTransactionParams().do()
-			});
-			let signedTxn = txn.signTxn(account.sk);
+			let txn = await makePayTxn(
+				$publicKey,
+				transaction.destination,
+				transaction.amount,
+				algosdk,
+				algodClient
+			);
+			let signedTxn = await signTxn(txn, account);
 			transactionHash = txn.txID().toString();
 
 			db.transactions.update(transactionDbId, {
 				hash: transactionHash
 			});
 
-			await algodClient.sendRawTransaction(signedTxn).do();
-			await algosdk.waitForConfirmation(algodClient, txId, 4);
+			await submitTxn(signedTxn, algosdk, algodClient);
 			db.transactions.update(transactionDbId, {
 				status: 'complete'
 			});
@@ -141,7 +142,7 @@
 			window.alert(err);
 		}
 
-		balance.set(await algodClient.accountInformation($publicKey).do().amount);
+		balance.set(await getBalance($publicKey));
 	}
 
 	export async function connect() {
@@ -151,7 +152,7 @@
 
 		fetchInterval = setInterval(async () => {
 			await processTransaction();
-		}, fetchPeriod);
+		}, $apiFetchPeriod);
 	}
 
 	export async function disconnect() {
