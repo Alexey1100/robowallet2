@@ -3,10 +3,10 @@ import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfil
 
 /** @type {import('vite').UserConfig} */
 const config = {
-	define: {
-		global: 'globalThis'
-	},
-	plugins: [sveltekit()]
+  define: {
+    global: 'globalThis'
+  },
+  plugins: [sveltekit()]
 };
 
 export default config;
