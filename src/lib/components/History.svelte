@@ -1,10 +1,10 @@
 <script>
-	import { isLoggedIn } from '$lib/stores';
-	import { liveQuery } from 'dexie';
-	import { db } from '$lib/db';
-	import { browser } from '$app/env';
+    import { isLoggedIn } from '$lib/stores';
+    import { liveQuery } from 'dexie';
+    import { db } from '$lib/db';
+    import { browser } from '$app/env';
 
-	let transactions = liveQuery(() => (browser ? db.transactions.toArray() : []));
+    let transactions = liveQuery(() => (browser ? db.transactions.toArray() : []));
 </script>
 
 {#if $isLoggedIn && $transactions?.length > 0}
