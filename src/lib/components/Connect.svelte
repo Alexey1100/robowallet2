@@ -23,7 +23,8 @@
 		const response = await fetch(`${$apiUrl}/hot_wallet_addresses`, {
 			method: 'POST',
 			headers: {
-				'API-Transaction-Key': $apiKey
+				'API-Transaction-Key': $apiKey,
+				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
 				body: { data: { hot_wallet: { address: $publicKey } } }
@@ -36,7 +37,8 @@
 		const response = await fetch(`${$apiUrl}/blockchain_transactions`, {
 			method: 'POST',
 			headers: {
-				'API-Transaction-Key': $apiKey
+				'API-Transaction-Key': $apiKey,
+				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
 				body: { data: { transaction: { source: $publicKey, nonce: 1 } } }
@@ -49,7 +51,8 @@
 		const response = await fetch(`${$apiUrl}/blockchain_transactions/${transaction.id}`, {
 			method: 'PUT',
 			headers: {
-				'API-Transaction-Key': $apiKey
+				'API-Transaction-Key': $apiKey,
+				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
 				body: { data: { transaction: { tx_hash: transaction.hash } } }
@@ -62,10 +65,11 @@
 		const response = await fetch(`${$apiUrl}/blockchain_transactions/${transaction.id}`, {
 			method: 'DELETE',
 			headers: {
-				'API-Transaction-Key': $apiKey
+				'API-Transaction-Key': $apiKey,
+				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
-				body: { data: { transaction: { tx_hash: null, status_message: reason } } }
+				body: { data: { transaction: { tx_hash: null, status_message: reason, failed: true } } }
 			})
 		});
 		return await response.json();
@@ -89,17 +93,18 @@
 		try {
 			if (
 				(await db.transactions
-					.where(['blockchainTransactionbleId', 'status'])
-					.equals([transaction.blockchainTransactionbleId, 'complete'])
+					.where(['blockchainTransactableId', 'status'])
+					.equals([transaction.blockchainTransactables[0].blockchainTransactableId, 'complete'])
 					.count()) > 0
 			) {
-				throw `Transaction already processed: ${transaction}`;
+				throw `Transaction already processed: ${JSON.stringify(transaction)}`;
 			}
 
 			transactionDbId = await db.transactions.add({
-				id: transaction.id,
-				blockchainTransactionbleId: transaction.blockchainTransactionbleId,
-				blockchainTransactionbleType: transaction.blockchainTransactionbleType,
+				remoteId: transaction.id,
+				blockchainTransactableId: transaction.blockchainTransactables[0].blockchainTransactableId,
+				blockchainTransactableType:
+					transaction.blockchainTransactables[0].blockchainTransactableType,
 				amount: transaction.amount,
 				destination: transaction.destination,
 				hash: null,
@@ -116,27 +121,27 @@
 			let signedTxn = await signTxn(txn, account);
 			transactionHash = txn.txID().toString();
 
-			db.transactions.update(transactionDbId, {
+			await db.transactions.update(transactionDbId, {
 				hash: transactionHash
 			});
 
 			await submitTxn(signedTxn, algosdk, algodClient);
-			db.transactions.update(transactionDbId, {
+			await db.transactions.update(transactionDbId, {
 				status: 'complete'
 			});
-			submitTransaction(transaction);
+			await submitTransaction(transaction);
 		} catch (err) {
 			console.error(err);
 
+			if (transaction) {
+				await cancelTransaction(transaction, err);
+			}
+
 			if (transactionDbId) {
-				db.transactions.update(transactionDbId, {
+				await db.transactions.update(transactionDbId, {
 					status: 'failed',
 					statusMessage: err
 				});
-			}
-
-			if (transactionHash) {
-				cancelTransaction(transaction, err);
 			}
 
 			window.alert(err);
@@ -183,7 +188,7 @@
 		/>
 		<div class="my-1">
 			<button
-				class="bg-green-200 px-3 py-1 rounded active:bg-neutral-400 disabled:bg-neutral-200 disabled:text-neutral-200 disabled:cursor-not-allowed"
+				class="bg-green-200 px-3 py-1 inline-flex items-center rounded active:bg-neutral-400 disabled:bg-neutral-100 disabled:text-neutral-200 disabled:cursor-not-allowed"
 				disabled={$isConnected}
 				on:click={connect}
 			>
