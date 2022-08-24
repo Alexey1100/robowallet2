@@ -1,4 +1,6 @@
 # create-svelte
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FAlexey1100%2Frobowallet2.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FAlexey1100%2Frobowallet2?ref=badge_shield)
+
 
 Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
 
@@ -36,3 +38,7 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FAlexey1100%2Frobowallet2.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FAlexey1100%2Frobowallet2?ref=badge_large)
