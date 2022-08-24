@@ -33,7 +33,7 @@
     "@json-rpc-tools/utils": "^1.7.6",
     "@walletconnect/client": "^1.8.0",
     "@webcrypto/storage": "^3.0.0",
-    "algorand-walletconnect-qrcode-modal": "^1.7.4",
+    "algorand-walletconnect-qrcode-modal": "^1.8.0",
     "algosdk": "^1.19.1",
     "buffer": "^6.0.3",
     "dexie": "^3.2.2",
